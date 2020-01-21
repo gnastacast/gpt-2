@@ -53,8 +53,9 @@ def interact_model(
         length = hparams.n_ctx // 2
     elif length > hparams.n_ctx:
         raise ValueError("Can't get samples longer than window size: %s" % hparams.n_ctx)
-
-    with tf.Session(graph=tf.Graph()) as sess:
+    gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.75)
+    current_text = []
+    with tf.Session(graph=tf.Graph(), config=tf.ConfigProto(gpu_options=gpu_options)) as sess:
         context = tf.placeholder(tf.int32, [batch_size, None])
         np.random.seed(seed)
         tf.set_random_seed(seed)
@@ -69,12 +70,24 @@ def interact_model(
         ckpt = tf.train.latest_checkpoint(os.path.join(models_dir, model_name))
         saver.restore(sess, ckpt)
 
+        display_text = "Model prompt >>> "
         while True:
-            raw_text = input("Model prompt >>> ")
-            while not raw_text:
-                print('Prompt should not be empty!')
-                raw_text = input("Model prompt >>> ")
-            context_tokens = enc.encode(raw_text)
+            raw_text = input(display_text)
+            # display_text = display_text+raw_text
+            # if len(display_text) > 60:
+            #     print("")
+            #     display_text = ""
+            # print('\033[{}D\033[1A'.format(len(display_text)), end='', flush=True)
+            while not raw_text and not current_text:
+                raw_text = input(display_text)
+            if raw_text:
+                current_text = [raw_text]
+            if len(current_text) > 4:
+                current_text = current_text[len(current_text) - 2:]
+            input_text = ""
+            for t in current_text:
+                input_text = input_text + t
+            context_tokens = enc.encode(input_text)
             generated = 0
             for _ in range(nsamples // batch_size):
                 out = sess.run(output, feed_dict={
@@ -83,10 +96,10 @@ def interact_model(
                 for i in range(batch_size):
                     generated += 1
                     text = enc.decode(out[i])
-                    print("=" * 40 + " SAMPLE " + str(generated) + " " + "=" * 40)
-                    print(text)
-            print("=" * 80)
-
+                    for t in text.split('\n'):
+                        if t.strip():
+                            text = t
+                    current_text = current_text + [text]
+                    display_text = text
 if __name__ == '__main__':
     fire.Fire(interact_model)
-
