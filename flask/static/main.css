@@ -1,0 +1,48 @@
+body {
+    font-family: monospace;
+    font-size: 36pt;
+    margin:0px;
+    color:white;
+    background-color: black;
+}
+#wrapper
+{
+    height:100%;
+}
+#output{
+    position: absolute;
+    margin: 0 50px;
+    bottom: 20vh;
+}
+#output>span{
+    white-space: pre-wrap;
+}
+#input{
+    overflow:hidden;
+    margin: 0 50px;
+    position: absolute;
+    top:90vh;
+}
+#input::before{
+    content:">>";
+    animation: blinker 0.6s linear infinite;
+}
+@keyframes blinker {
+    50% { opacity: 0; }
+}
+#input > input{
+    color: inherit;
+    -webkit-appearance: unset;
+    background-color: transparent;
+    font: inherit;
+    border: none;
+    outline:none;
+    width:80vw;
+}
+#input > input:focus
+{
+    outline:none;
+}
+.color{
+    color:salmon;
+}
