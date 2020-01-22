@@ -65,7 +65,7 @@ class MLThread(Thread):
             saver.restore(sess, ckpt)
 
             while not self.shutdown_flag.is_set():
-                print("thread_cb")called
+                print("thread_cb")
                 sleep(self.update_hz)
                 maxLen = 5
                 if len(self.current_text) > maxLen:
