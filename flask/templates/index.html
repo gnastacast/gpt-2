@@ -10,7 +10,8 @@
         <div id="output">
         </div>
         <form id="input" class="color">
-            <input autocomplete="off" autofocus type="text" name="finput">
+            <label for="finput">Type to send a message</label>
+            <input autocomplete="off" autofocus type="text" name="finput" id="finput">
             <input type="submit" style="display: none" />
         </form>
     </div>
@@ -32,8 +33,7 @@
 
             function submitForm(e) {
                 e.preventDefault();
-                console.log(e);
-                socket.emit('input_text', { text: e.srcElement.elements[0].value });
+                socket.emit('input_text', { text: " " + e.srcElement.elements[0].value });
                 e.srcElement.reset();
                 return false;
             }
