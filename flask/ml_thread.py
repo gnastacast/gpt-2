@@ -31,6 +31,7 @@ class MLThread(Thread):
         self.shutdown_flag = Event()
         self.text_lock = Lock()
         super(MLThread, self).__init__()
+        self.daemon = True
 
     # Will be called when thread.start is called
     def run(self):
