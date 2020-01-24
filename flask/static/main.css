@@ -1,5 +1,13 @@
+@font-face {
+    font-family: fira_code;
+    font-style: normal;
+    font-weight: normal;
+    font-stretch: normal;
+    src: url('../static/Fira_Code/FiraCode-VariableFont:wght.ttf') format('woff');
+}
+
 body {
-    font-family: monospace;
+    font-family: fira_code, monospace;
     font-size: 36pt;
     margin:0px;
     color:white;

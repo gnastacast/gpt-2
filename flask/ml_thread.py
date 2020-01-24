@@ -14,7 +14,7 @@ import model, sample, encoder
 # A class that can be used to begin a threaded version of GPT-2
 class MLThread(Thread):
     def __init__(self, model_name, seed = None, nsamples = 1, batch_size = 1,
-                 length = 28, temperature = 1, top_k = 0, top_p = 1, update_hz = 5):
+                 length = 32, temperature = 1, top_k = 0, top_p = 1, update_hz = 7):
         # Populate defaults
         self.model_name = model_name
         self.seed = seed
