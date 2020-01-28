@@ -22,7 +22,7 @@ def main():
 
     @app.route("/")
     def hello():
-        return render_template('index.html')
+        return render_template('text_input.html')
 
     @socketio.on('connect')
     def test_connect():
