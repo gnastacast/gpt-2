@@ -31,6 +31,16 @@
                 output.appendChild(tElement);
             });
 
+
+            function submitForm(e) {
+                e.preventDefault();
+                socket.emit('input_text', { text: " " + e.srcElement.elements[0].value });
+                e.srcElement.reset();
+                return false;
+            }
+
+            var form = document.getElementById('input');
+            form.addEventListener('submit', submitForm, false);
         });
     </script>
 </body>

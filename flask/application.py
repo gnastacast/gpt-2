@@ -37,14 +37,10 @@ def main():
     def test_disconnect():
         print('Client disconnected')
 
-    def calc_speed(text):
-        length = len(text.split())
-        return length / (ml_thread.update_delay)
-
     @socketio.on('input_text')
     def input_text_cb(msg):
         ml_thread.add_text(msg['text'])
-        socketio.emit("generated_text", {"text": msg['text'], "color":True, "speed":calc_speed(msg['text'])})
+        socketio.emit("generated_text", {"text": msg['text'], "color":True, "delay":1, "instant":True})
      
     def service_shutdown(signum, frame):
         print('Caught signal %d' % signum)
@@ -52,7 +48,7 @@ def main():
 
     # Set thread callbacks
     def text_generated_cb(output_text):
-        socketio.emit("generated_text", {"text": output_text, "color": False, "speed":calc_speed(output_text)})
+        socketio.emit("generated_text", {"text": output_text, "color": False, "delay":ml_thread.update_delay, "instant":True})
         udp_thread.send_text(output_text)
     ml_thread.text_generated_cb = text_generated_cb
     udp_thread.receive_cb = input_text_cb
