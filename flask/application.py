@@ -21,7 +21,11 @@ def main():
     thread.text_generated_cb = text_generated_cb
 
     @app.route("/")
-    def hello():
+    def speed_reader():
+        return render_template('speed_reader.html')
+
+    @app.route("/text_input")
+    def text_input():
         return render_template('text_input.html')
 
     @socketio.on('connect')
