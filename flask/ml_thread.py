@@ -14,7 +14,7 @@ import model, sample, encoder
 # A class that can be used to begin a threaded version of GPT-2
 class MLThread(Thread):
     def __init__(self, model_name, seed = None, nsamples = 1, batch_size = 1,
-                 length = 32, temperature = 1, top_k = 0, top_p = 1, update_hz = 7):
+                 length = 32, temperature = 1, top_k = 0, top_p = 1, update_delay = 7):
         # Populate defaults
         self.model_name = model_name
         self.seed = seed
@@ -24,12 +24,13 @@ class MLThread(Thread):
         self.temperature = temperature
         self.top_k = top_k
         self.top_p = top_p
-        self.update_hz = update_hz
+        self.update_delay = update_delay
         self.models_dir = os.path.join(os.path.dirname(__file__), '..','models')
         self.current_text = ['Sarah & Rem. John Hathorn, both of Salem village']
         # Initialize threading variables
         self.shutdown_flag = Event()
         self.text_lock = Lock()
+        self.paused = False
         super(MLThread, self).__init__()
         self.daemon = True
 
@@ -67,8 +68,10 @@ class MLThread(Thread):
 
             while not self.shutdown_flag.is_set():
                 print("thread_cb")
-                sleep(self.update_hz)
-                maxLen = 5
+                sleep(self.update_delay)
+                if self.paused:
+                    continue
+                maxLen = 20
                 if len(self.current_text) > maxLen:
                     self.current_text = self.current_text[len(self.current_text) - maxLen:]
                 input_text = ""
@@ -97,3 +100,9 @@ class MLThread(Thread):
     # Empty function called when new text is generated to be implemented by user
     def text_generated_cb(self, output_text):
         pass
+
+    def set_paused(self, on_off):
+        self.paused = True
+
+    def set_update_delay(self, time):
+        self.update_delay = time
