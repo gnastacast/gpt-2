@@ -85,6 +85,10 @@ class MLThread(Thread):
                         with self.text_lock:
                             self.text_generated_cb(output_text)
 
+    def clear_history(self, text):
+        with self.text_lock:
+            self.current_text = [text]
+
     # Function to insert input text
     def add_text(self, text):
         with self.text_lock:
