@@ -44,12 +44,13 @@ def main():
     def input_text_cb(msg):
         global __FADE__
         if ">>fd" in msg['text']:
-            __FADE__ = not __FADE__
-            socketio.emit("fade", {"value":__FADE__})
+            # __FADE__ = not __FADE__
+            idx = msg['text'].find(">>fd")
+            socketio.emit("fade", {"value":bool(int(msg['text'][idx+5:]))})
             return
         if ">>re" in msg['text'] or ">>rs" in msg['text']:
             idx = msg['text'].find(">>rs")
-            msg['text']= msg['text'][idx+4:]
+            msg['text']= msg['text'][idx+5:]
             ml_thread.clear_history(msg['text'])
             ml_thread.set_paused(False)
             socketio.emit("generated_text", {"text": msg['text'], "color":True, "delay":1, "instant":True})
@@ -59,7 +60,9 @@ def main():
             ml_thread.set_paused(True)
             return
         if ">>cr" in msg['text']:
-            ml_thread.set_call_response(not ml_thread.get_call_response())
+            idx = msg['text'].find(">>cr")
+            # ml_thread.set_call_response(not ml_thread.get_call_response())
+            ml_thread.set_call_response(bool(int(msg['text'][idx+5:])))
             return
         if ">>sp" in msg['text']:
             idx = msg['text'].find(">>sp")

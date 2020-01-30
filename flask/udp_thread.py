@@ -58,8 +58,11 @@ class UDPThread(Thread):
 
         while not self.shutdown_flag.is_set():
             data, addr = self.serverSock.recvfrom(1024*2)
-            decoded = decode_osc(data)
-            self.receive_cb(decoded)
+            try:
+                decoded = decode_osc(data)
+                self.receive_cb(decoded)
+            except Exception as e:
+                print(e)
 
     # Empty function called when a message is recieved to be implemented by user
     def receive_cb(self, msg):
@@ -67,6 +70,9 @@ class UDPThread(Thread):
 
     # Function to send out text
     def send_text(self, text):
-        if not self.serverSock:
-            return
-        self.serverSock.sendto(encode_osc(str(text)), (self.target_address, self.port_no))
+        try:
+            if not self.serverSock:
+                return
+            self.serverSock.sendto(encode_osc(str(text)), (self.target_address, self.port_no))
+        except Exception as e:
+            print(e)

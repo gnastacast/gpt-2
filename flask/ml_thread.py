@@ -72,7 +72,7 @@ class MLThread(Thread):
                     sleep(0.05)
                     continue
                 if self.call_response_flag.is_set():
-                    sleep(1)
+                    sleep(0.5)
                 print("thread_cb")
                 maxLen = 20
                 if len(self.current_text) > maxLen:
