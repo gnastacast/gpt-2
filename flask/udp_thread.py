@@ -1,6 +1,8 @@
 #! /usr/bin/env python
 from threading import Thread, Event, Lock
 import socket
+import math
+from struct import unpack, pack
 
 def decode_osc(data, current_string=""):
     length = data.find(b'\0')
@@ -41,6 +43,7 @@ class UDPThread(Thread):
         self.text_lock = Lock()
         self.outputs = []
         self.shutdown_flag = Event()
+        self.serverSock = None
         super(UDPThread, self).__init__()
         self.daemon = True
 
@@ -48,18 +51,15 @@ class UDPThread(Thread):
     def run(self):
         # declare our serverSocket upon which
         # we will be listening for UDP messages
-        serverSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.serverSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         # One difference is that we will have to bind our declared IP address
         # and port number to our newly declared serverSock
-        serverSock.bind((self.local_address, self.port_no))
+        self.serverSock.bind((self.local_address, self.port_no))
 
         while not self.shutdown_flag.is_set():
-            data, addr = serverSock.recvfrom(1024*2)
+            data, addr = self.serverSock.recvfrom(1024*2)
             decoded = decode_osc(data)
             self.receive_cb(decoded)
-            with self.text_lock:
-                while len(self.outputs) > 0:
-                    sock.sendto(encode_osc(self.outputs.pop()), (self.target_address, self.port_no))
 
     # Empty function called when a message is recieved to be implemented by user
     def receive_cb(self, msg):
@@ -67,5 +67,6 @@ class UDPThread(Thread):
 
     # Function to send out text
     def send_text(self, text):
-        with self.text_lock:
-            self.outputs = self.outputs + [str(text)]
+        if not self.serverSock:
+            return
+        self.serverSock.sendto(encode_osc(str(text)), (self.target_address, self.port_no))

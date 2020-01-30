@@ -36,7 +36,8 @@ if __name__ == '__main__':
 	import socket
 	# Here we define the UDP IP address as well as the port number that we have
 	# already defined in the client python script.
-	UDP_IP_ADDRESS = "192.168.1.2"
+	UDP_LOCAL_IP_ADDRESS = "192.168.1.2"
+	UDP_EXTER_IP_ADDRESS = "192.168.1.1"
 	UDP_PORT_NO = 5005
 
 	# declare our serverSocket upon which
@@ -44,7 +45,7 @@ if __name__ == '__main__':
 	serverSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 	# One difference is that we will have to bind our declared IP address
 	# and port number to our newly declared serverSock
-	serverSock.bind((UDP_IP_ADDRESS, UDP_PORT_NO))
+	serverSock.bind((UDP_LOCAL_IP_ADDRESS, UDP_PORT_NO))
 
 	while True:
 	    data, addr = serverSock.recvfrom(1024*2)
@@ -52,4 +53,4 @@ if __name__ == '__main__':
 	    decoded = decode_osc(data)
 	    print(decoded)
 	    send_str = "\nThe Attainder taken from Jonathan Butler\n(Reverse) The day the Court were present w'th them. \nBridget Butler and Sarah Good affirmed in open Court that the above n'th Press were not persons, but were  spirits of grace from God: and the afflicted asked whether they were  any way got along with him; but they denied it, their Lord being  with them as a friend or no way got along with them. \nBrought up on a Gospel Question, was it not to yourself why no one hath taken care to notice  who you are a thing contrary to the Peace of our Sovereign Lord and Lady the King and  Queen? I meant myself; in the end I do not know; and am sure there is a God in heaven to find God in every soul -- the afflicted, they can not be found in any  other body to give their opinion of my truth.\nI can give no other opinion of things besides my soul.\nI know it is false to accuse the Press which does all this to set up this evident malice. to the best of my faculties.\nI am as clear as the clear mouther from any other person or spirit  or no spirit. \nIf you will"
-	    sock.sendto(encode_osc(send_str), (UDP_IP_ADDRESS, UDP_PORT_NO))
+	    serverSock.sendto(encode_osc(send_str), (UDP_EXTER_IP_ADDRESS, UDP_PORT_NO))

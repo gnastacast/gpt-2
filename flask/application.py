@@ -20,7 +20,7 @@ def main():
     socketio = SocketIO(app)
 
     # Make threads
-    udp_thread = UDPThread()
+    udp_thread = UDPThread("192.168.1.2", "192.168.1.1")
     ml_thread = MLThread('Salem', update_delay=5)
     threads = [udp_thread, ml_thread]
 
@@ -85,10 +85,13 @@ def main():
         socketio.emit("generated_text", {"text": output_text, "color": False, "delay":ml_thread.update_delay, "instant":True})
         udp_thread.send_text(output_text)
     ml_thread.text_generated_cb = text_generated_cb
-    # Set UDP callback
+
     def udp_receive_cb(input_text):
-        input_text_cb(input_text)
-    udp_thread.receive_cb = input_text_cb
+        msg = {"text": str(input_text)}
+        input_text_cb(msg)
+        # print(msg['text'])
+
+    udp_thread.receive_cb = udp_receive_cb
 
     signal.signal(signal.SIGTERM, service_shutdown)
     signal.signal(signal.SIGINT, service_shutdown)
