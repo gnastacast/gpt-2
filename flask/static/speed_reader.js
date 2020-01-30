@@ -20,6 +20,16 @@ var text_reader = {
         current_idx = 0
     },
 
+    'reset': function() {
+        this.text_buffer=[];
+        this.colored_buffer=[];
+        this.delay_buffer=[];
+        this.text = "";
+        this.colored = false;
+        this.delay = 0.3,
+        this.current_idx = 0;
+    },
+
     'get_next_buffer_text': function() {
         this.text = this.text_buffer.shift();
         this.colored = this.colored_buffer.shift();
@@ -61,6 +71,7 @@ var text_reader = {
     },
 
     'add_text': function(new_text, is_colored=false, delay=1, instant=false) {
+        delay = Math.max(delay, 0.5)
         if(!instant)
         {
             this.text_buffer.push(new_text);
@@ -100,6 +111,18 @@ document.addEventListener("DOMContentLoaded", function(){
         }
     });
 
+    socket.on('fade', function(msg) {
+        if(msg.value) document.getElementById('fader').classList.add('on');
+        else          document.getElementById('fader').classList.remove('on');
+    });
+
+    socket.on('clear', function(msg) {
+        text_reader.reset();
+        while(output.childElementCount > 0){
+            output.removeChild(output.firstChild); 
+        }
+    });
+
     function reader_thread(){
         var beg = document.getElementsByClassName('begin');
         var mid = document.getElementsByClassName('middle');
@@ -124,69 +147,9 @@ document.addEventListener("DOMContentLoaded", function(){
         var pause = 300;
         if(text_reader.get_total_words() > 0)
             pause =  text_reader.delay * 1000 / text_reader.get_total_words();
-        out.lastChild.textContent = text_reader.get_old_text();
+        if(out.lastChild != null)
+            out.lastChild.textContent = text_reader.get_old_text();
         setTimeout(reader_thread, pause);
     } reader_thread();
-
-    // function nextText(){
-    //     var t = "<<PAUSE>>";
-    //     if(text.length != 0){
-    //         t = text[0];
-    //     }
-    //     else{
-    //         // beg[0].textContent = "";
-    //         // mid[0].textContent = "";
-    //         // end[0].textContent = "";
-    //         if(new_text.length > 0)
-    //         {
-    //             start_new_word();
-    //             text = [...new_text];
-    //             new_text = [];
-    //         }
-    //         return;
-    //     }
-    //     if(!t){
-    //         text.shift();
-    //         nextText();
-    //         return;
-    //     }
-    //     if(t.length <= 2 && t.match(/[\?\,\;\.\!\:\"\)\]\}]$/g)){
-    //         text.shift();
-    //         nextText();
-    //         return;
-    //     }
-    //     if(t == "<<PAUSE>>"){
-    //         text.shift();
-    //         return;
-    //     }
-    //     var split = 4;
-    //     if(t.length < 2) {
-    //         split = 0;
-    //     } else if(t.length < 6) {
-    //         split = 1;
-    //     }
-    //     else if(t.length < 10) {
-    //         split = 2;
-    //     }
-    //     else if(t.length < 14) {
-    //         split = 3;
-    //     }
-
-    //     beg[0].textContent = t.slice(0        , split);
-    //     mid[0].textContent = t.slice(split    , split + 1);
-    //     end[0].textContent = t.slice(split + 1, t.length);
-    //     text.shift();
-    //     next_idx = t.slice(current_idx).search(encodeURI(t));
-    //     if(next_idx < 0) next_idx = 1;
-    //     current_idx = next_idx + current_idx;
-    //     out.lastChild.textContent = t.slice(0,current_idx) + t;
-    //     console.log(current_idx + "/" + t.length);
-
-    //     if(t.match(/[?,;.!:"]$/g))
-    //     {
-    //         text.unshift("<<PAUSE>>");
-    //         return;
-    //     }
-    // };
 
 });

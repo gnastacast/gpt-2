@@ -30,7 +30,7 @@ class MLThread(Thread):
         # Initialize threading variables
         self.shutdown_flag = Event()
         self.text_lock = Lock()
-        self.paused = False
+        self.pause_flag = Event()
         super(MLThread, self).__init__()
         self.daemon = True
 
@@ -67,10 +67,11 @@ class MLThread(Thread):
             saver.restore(sess, ckpt)
 
             while not self.shutdown_flag.is_set():
+                if self.pause_flag.is_set():
+                    sleep(0.05)
+                    continue
                 print("thread_cb")
                 sleep(self.update_delay)
-                if self.paused:
-                    continue
                 maxLen = 20
                 if len(self.current_text) > maxLen:
                     self.current_text = self.current_text[len(self.current_text) - maxLen:]
