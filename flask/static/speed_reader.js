@@ -113,7 +113,13 @@ document.addEventListener("DOMContentLoaded", function(){
 
     socket.on('fade', function(msg) {
         if(msg.value) document.getElementById('fader').classList.add('on');
-        else          document.getElementById('fader').classList.remove('on');
+        else {
+            text_reader.reset();
+            while(output.childElementCount > 0){
+                output.removeChild(output.firstChild); 
+            }
+            document.getElementById('fader').classList.remove('on');
+        }
     });
 
     socket.on('clear', function(msg) {
@@ -129,6 +135,14 @@ document.addEventListener("DOMContentLoaded", function(){
         var end = document.getElementsByClassName('end');
         var out = document.getElementById('output');
         var t = text_reader.get_next_word();
+        if(text_reader.colored) {
+            beg[0].classList.add('color');
+            end[0].classList.add('color');
+        }
+        else {
+            beg[0].classList.remove('color');
+            end[0].classList.remove('color');
+        }
         var split = 4;
         if(t.length < 2) {
             split = 0;
@@ -144,11 +158,16 @@ document.addEventListener("DOMContentLoaded", function(){
         beg[0].textContent = t.slice(0        , split);
         mid[0].textContent = t.slice(split    , split + 1);
         end[0].textContent = t.slice(split + 1, t.length);
-        var pause = 300;
+        var pause = 30;
         if(text_reader.get_total_words() > 0)
             pause =  text_reader.delay * 1000 / text_reader.get_total_words();
         if(out.lastChild != null)
             out.lastChild.textContent = text_reader.get_old_text();
+        if (t.length > 1 && t.slice(t.length-2).search(/[^ ][,.;:]/g) != -1)
+        {
+            pause *= 2;
+            console.log(t);
+        }
         setTimeout(reader_thread, pause);
     } reader_thread();
 

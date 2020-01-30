@@ -23,7 +23,7 @@ body {
     opacity: 0;
     height:100%;
     width:100%;
-    transition: opacity 2s;
+    transition: opacity 0.5s;
 }
 #fader.on
 {
@@ -36,8 +36,11 @@ body {
 }
 #output{
     position: absolute;
-    margin: 0 50px;
-    bottom: 5em;
+    padding: 0 50px;
+    box-sizing: border-box;
+    margin: 0;
+    bottom: 22vw;
+    width: 100%;
 }
 #output>span{
     white-space: pre-wrap;

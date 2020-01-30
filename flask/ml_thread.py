@@ -31,6 +31,7 @@ class MLThread(Thread):
         self.shutdown_flag = Event()
         self.text_lock = Lock()
         self.pause_flag = Event()
+        self.call_response_flag = Event()
         super(MLThread, self).__init__()
         self.daemon = True
 
@@ -70,8 +71,9 @@ class MLThread(Thread):
                 if self.pause_flag.is_set():
                     sleep(0.05)
                     continue
+                if self.call_response_flag.is_set():
+                    sleep(1)
                 print("thread_cb")
-                sleep(self.update_delay)
                 maxLen = 20
                 if len(self.current_text) > maxLen:
                     self.current_text = self.current_text[len(self.current_text) - maxLen:]
@@ -88,6 +90,10 @@ class MLThread(Thread):
                         output_text = enc.decode(out[i])
                         with self.text_lock:
                             self.text_generated_cb(output_text)
+                if self.call_response_flag.is_set():
+                    self.pause_flag.set()
+                else:
+                    sleep(self.update_delay)
 
     def clear_history(self, text):
         with self.text_lock:
@@ -102,8 +108,22 @@ class MLThread(Thread):
     def text_generated_cb(self, output_text):
         pass
 
+    def get_call_response(self):
+        return  self.call_response_flag.is_set()
+
+    def set_call_response(self, on_off):
+        if on_off:
+            self.call_response_flag.set()
+            self.set_paused(True)
+        else:
+            self.call_response_flag.clear()
+            self.set_paused(False)
+
     def set_paused(self, on_off):
-        self.paused = True
+        if on_off:
+            self.pause_flag.set()
+        else:
+            self.pause_flag.clear()
 
     def set_update_delay(self, time):
         self.update_delay = time

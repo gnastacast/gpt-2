@@ -49,12 +49,17 @@ def main():
             return
         if ">>re" in msg['text'] or ">>rs" in msg['text']:
             idx = msg['text'].find(">>rs")
-            ml_thread.pause_flag.clear()
             msg['text']= msg['text'][idx+4:]
             ml_thread.clear_history(msg['text'])
+            ml_thread.set_paused(False)
+            socketio.emit("generated_text", {"text": msg['text'], "color":True, "delay":1, "instant":True})
+            return
         if ">>cl" in msg['text']:
             socketio.emit("clear", {})
-            ml_thread.pause_flag.set()
+            ml_thread.set_paused(True)
+            return
+        if ">>cr" in msg['text']:
+            ml_thread.set_call_response(not ml_thread.get_call_response())
             return
         if ">>sp" in msg['text']:
             idx = msg['text'].find(">>sp")
@@ -62,11 +67,13 @@ def main():
             print(speed)
             if speed >= 0:
                 ml_thread.set_update_delay(speed)
+                ml_thread.set_paused(False)
             else:
-                ml_thread.pause_flag.set()
+                ml_thread.set_paused(True)
             return
-        else:
-            ml_thread.add_text(msg['text'])
+        ml_thread.add_text(msg['text'])
+        if ml_thread.get_call_response():
+            ml_thread.set_paused(False)
         socketio.emit("generated_text", {"text": msg['text'], "color":True, "delay":1, "instant":True})
      
     def service_shutdown(signum, frame):
